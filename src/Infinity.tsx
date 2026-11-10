@@ -38,7 +38,8 @@ export default function InfinityExperience(){
  const [landmark,setLandmark]=usePersistentState("infinity:landmark",0);
  const [dragging,setDragging]=useState(false);
  const [rendering,setRendering]=useState(false);
- const [resolution,setResolution]=useState("—");\n const [sizeVersion,setSizeVersion]=useState(0);
+ const [resolution,setResolution]=useState("—");
+ const [sizeVersion,setSizeVersion]=useState(0);
  const span=3.5/view.zoom;
  const limit=Math.min(1200,Math.max(iterations,Math.round(iterations+Math.log2(view.zoom+1)*28)));
 
