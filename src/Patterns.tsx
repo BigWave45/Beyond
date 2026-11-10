@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, RefreshCw, Shuffle } from "lucide-react";
 import "./patterns.css";
+import { usePersistentState } from "./usePersistentState";
 
 type Point={x:number;y:number;};
 const presets=[
@@ -59,7 +60,7 @@ function traceGrammar(ctx:CanvasRenderingContext2D,grammar:string,angle:number,l
 }
 export default function PatternsExperience(){
  const canvas=useRef<HTMLCanvasElement>(null);
- const [preset,setPreset]=useState(0),[angle,setAngle]=useState(25.7),[iterations,setIterations]=useState(4),[ratio,setRatio]=useState(.72),[seed,setSeed]=useState(0),[showGrammar,setShowGrammar]=useState(false);
+ const [preset,setPreset]=usePersistentState("patterns:preset",0),[angle,setAngle]=usePersistentState("patterns:angle",25.7),[iterations,setIterations]=usePersistentState("patterns:iterations",4),[ratio,setRatio]=usePersistentState("patterns:ratio",.72),[seed,setSeed]=usePersistentState("patterns:seed",0),[showGrammar,setShowGrammar]=usePersistentState("patterns:showGrammar",false);
  const selected=presets[preset];
  const grammar=useMemo(()=>expand(selected.axiom,selected.rule,iterations),[selected,iterations,seed]);
  const segmentCount=useMemo(()=>grammar.split("").filter(c=>c==="F").length,[grammar]);
