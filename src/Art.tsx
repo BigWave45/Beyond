@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, Trash2, Undo2 } from "lucide-react";
 import "./art.css";
+import { usePersistentState } from "./usePersistentState";
 
 type Point={x:number;y:number};
 type Stroke={points:Point[];color:string;width:number;symmetry:number;mirror:boolean};
@@ -12,13 +13,13 @@ const palettes=[
 ];
 export default function ArtExperience(){
  const canvas=useRef<HTMLCanvasElement>(null);
- const [strokes,setStrokes]=useState<Stroke[]>([]);
- const [color,setColor]=useState(palettes[0].colors[0]);
- const [palette,setPalette]=useState(0);
- const [width,setWidth]=useState(3);
- const [symmetry,setSymmetry]=useState(8);
- const [mirror,setMirror]=useState(true);
- const [drawing,setDrawing]=useState(false);
+ const [strokes,setStrokes]=usePersistentState<Stroke[]>("art:strokes",[]);
+ const [color,setColor]=usePersistentState("art:color",palettes[0].colors[0]);
+ const [palette,setPalette]=usePersistentState("art:palette",0);
+ const [width,setWidth]=usePersistentState("art:width",3);
+ const [symmetry,setSymmetry]=usePersistentState("art:symmetry",8);
+ const [mirror,setMirror]=usePersistentState("art:mirror",true);
+ const [drawing,setDrawing]=usePersistentState("art:showMath",false);
  const [showMath,setShowMath]=useState(false);
  const active=useRef<Stroke|null>(null);
  const redraw=useCallback(()=>{
