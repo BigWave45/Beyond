@@ -37,3 +37,8 @@
 .paired-results>small{display:block;margin-top:10px}
 .paired-error{font-size:11px;color:#f0aaaa}
 @media(max-width:760px){.paired-experiment{padding:18px}.paired-settings,.paired-result-grid{gap:8px}.paired-settings>div,.paired-result-grid>div{padding:10px}.paired-settings b{font-size:9px}}
+
+.experiment-save{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.experiment-save input,.experiment-save select{min-width:0;width:100%;grid-column:span 2;padding:10px 9px;border:1px solid var(--line);background:#0a0d15;color:#dfe1ef;font:10px "DM Mono",monospace}
+.experiment-save button{min-width:0;padding:11px 8px;border:1px solid rgba(174,184,255,.45);background:#aeb8ff0d;color:#dfe1ff;font:8px "DM Mono",monospace;letter-spacing:.06em}
+.experiment-save button:disabled{opacity:.35}
