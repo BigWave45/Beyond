@@ -37,7 +37,7 @@ export default function InfinityExperience(){
  const [landmark,setLandmark]=useState(0);
  const [dragging,setDragging]=useState(false);
  const [rendering,setRendering]=useState(false);
- const [resolution,setResolution]=useState("—");
+ const [resolution,setResolution]=useState("—");\n const [sizeVersion,setSizeVersion]=useState(0);
  const span=3.5/view.zoom;
  const limit=Math.min(1200,Math.max(iterations,Math.round(iterations+Math.log2(view.zoom+1)*28)));
 
@@ -74,11 +74,11 @@ export default function InfinityExperience(){
   };
   frame=requestAnimationFrame(draw);
   return()=>{cancelAnimationFrame(frame);renderToken.current++;};
- },[view,span,limit]);
+ },[view,span,limit,sizeVersion]);
 
  useEffect(()=>{
   const el=wrapRef.current;if(!el)return;
-  const observer=new ResizeObserver(()=>setResolution(v=>v+""));
+  const observer=new ResizeObserver(()=>setSizeVersion(v=>v+1));
   observer.observe(el);return()=>observer.disconnect();
  },[]);
 
