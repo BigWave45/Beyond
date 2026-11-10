@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, Trash2, Undo2 } from "lucide-react";
 import "./art.css";
 import { usePersistentState } from "./usePersistentState";
