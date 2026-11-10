@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { Pause, Play, RotateCcw, Waves, Bookmark, FlaskConical } from "lucide-react";
 import "./emergence.css";
+import { usePersistentState } from "./usePersistentState";
 
 const N = 176, DU = 0.16, DV = 0.08;
 const presets = [
@@ -64,12 +65,12 @@ export default function Emergence(){
  const canvasRef=useRef<HTMLCanvasElement>(null);
  const sim=useRef<Sim|null>(null);
  const params=useRef<Params>({feed:0.055,kill:0.062,paused:false});
- const [feed,setFeed]=useState(0.055),[kill,setKill]=useState(0.062),[paused,setPaused]=useState(false);
- const [preset,setPreset]=useState(0),[stats,setStats]=useState<Sample>({active:0,mean:0,edge:0});
- const [step,setStep]=useState(0),[history,setHistory]=useState<number[]>([]);
- const [baseline,setBaseline]=useState({feed:0.055,kill:0.062});
+ const [feed,setFeed]=usePersistentState("emergence:feed",0.055),[kill,setKill]=usePersistentState("emergence:kill",0.062),[paused,setPaused]=usePersistentState("emergence:paused",false);
+ const [preset,setPreset]=usePersistentState("emergence:preset",0),[stats,setStats]=useState<Sample>({active:0,mean:0,edge:0});
+ const [step,setStep]=usePersistentState("emergence:step",0),[history,setHistory]=usePersistentState<number[]>("emergence:history",[]);
+ const [baseline,setBaseline]=usePersistentState("emergence:baseline",{feed:0.055,kill:0.062});
  const [showModel,setShowModel]=useState(false);
- const [brush,setBrush]=useState(5);
+ const [brush,setBrush]=usePersistentState("emergence:brush",5);
  const [probe,setProbe]=useState<Probe|null>(null);
  const painting=useRef(false);
  const [prediction,setPrediction]=useState("more");
