@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { Pause, Play, RotateCcw, Waves } from "lucide-react";
 import "./emergence.css";
 
@@ -33,6 +33,7 @@ export default function Emergence() {
     let nextV = new Float32Array(count);
     const pixels = context.createImageData(SIZE, SIZE);
     let frame = 0;
+    let animation = 0;
 
     const reset = () => {
       u.fill(1);
@@ -125,14 +126,14 @@ export default function Emergence() {
     reset();
     render();
     simulationRef.current = { reset, inject };
-    let animation = requestAnimationFrame(tick);
+    animation = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(animation);
       simulationRef.current = null;
     };
   }, []);
 
-  const handlePointer = (event: React.PointerEvent<HTMLCanvasElement>) => {
+  const handlePointer = (event: PointerEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     simulationRef.current?.inject((event.clientX - rect.left) / rect.width, (event.clientY - rect.top) / rect.height);
   };
