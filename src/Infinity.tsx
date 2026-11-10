@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { ArrowDownLeft, Maximize2, Minus, Plus, RotateCcw } from "lucide-react";
+import { ArrowDownLeft, Minus, Plus, RotateCcw } from "lucide-react";
 import "./infinity.css";
 
 type Point = { x: number; y: number; iterations: number; escaped: boolean };
