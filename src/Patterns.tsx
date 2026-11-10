@@ -39,10 +39,13 @@ function traceGrammar(ctx:CanvasRenderingContext2D,grammar:string,angle:number,l
   }
   if(token==="[")len*=lengthRatio;
  }
- const maxY=Math.max(...segments.map(s=>s.a.y),...segments.map(s=>s.b.y),0);
- const minY=Math.min(...segments.map(s=>s.a.y),...segments.map(s=>s.b.y),height);
- const maxX=Math.max(...segments.map(s=>s.a.x),...segments.map(s=>s.b.x),width/2);
- const minX=Math.min(...segments.map(s=>s.a.x),...segments.map(s=>s.b.x),width/2);
+ let maxY=0,minY=height,maxX=width/2,minX=width/2;
+ for(const segment of segments){
+  maxY=Math.max(maxY,segment.a.y,segment.b.y);
+  minY=Math.min(minY,segment.a.y,segment.b.y);
+  maxX=Math.max(maxX,segment.a.x,segment.b.x);
+  minX=Math.min(minX,segment.a.x,segment.b.x);
+ }
  const extent=Math.min(width*.86/(maxX-minX||1),height*.84/(maxY-minY||1));
  ctx.save();ctx.translate(width/2,height*.91);ctx.scale(extent,extent);ctx.translate(-(maxX+minX)/2,-maxY);
  segments.forEach((s,i)=>{
