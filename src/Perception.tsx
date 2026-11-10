@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { RefreshCw } from "lucide-react";
 import "./perception.css";
+import { usePersistentState } from "./usePersistentState";
 
 type TrialDot={x:number;y:number;tilt:number;target:boolean};
 function makeSearch():TrialDot[]{
@@ -8,11 +9,11 @@ function makeSearch():TrialDot[]{
  return Array.from({length:30},(_,i)=>({x:8+(i%6)*16.8+(Math.random()-.5)*5,y:10+Math.floor(i/6)*19+(Math.random()-.5)*5,tilt:i===target?90:0,target:i===target}));
 }
 export default function PerceptionExperience(){
- const [station,setStation]=useState<"context"|"ambiguity"|"attention">("context");
- const [surround,setSurround]=useState<"dark"|"light">("dark");
- const [face,setFace]=useState<"upper"|"lower">("upper");
- const [showValues,setShowValues]=useState(false);
- const [dots,setDots]=useState<TrialDot[]>(()=>makeSearch());
+ const [station,setStation]=usePersistentState<"context"|"ambiguity"|"attention">("perception:station","context");
+ const [surround,setSurround]=usePersistentState<"dark"|"light">("perception:surround","dark");
+ const [face,setFace]=usePersistentState<"upper"|"lower">("perception:face","upper");
+ const [showValues,setShowValues]=usePersistentState("perception:showValues",false);
+ const [dots,setDots]=usePersistentState<TrialDot[]>("perception:dots",()=>makeSearch());
  const [found,setFound]=useState(false);
  const [attempts,setAttempts]=useState(0);
  const [message,setMessage]=useState("Find the one line that is tilted sideways.");
