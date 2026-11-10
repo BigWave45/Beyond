@@ -16,16 +16,16 @@ function rotatePlane(v:V4,a:number,b:number,t:number):V4{
  const c=Math.cos(t),s=Math.sin(t),x=v[a],y=v[b];
  out[a]=x*c-y*s;out[b]=x*s+y*c;return out;
 }
-function project(v:V4,angles:number[]):P2{
+function project(v:V4,angles:number[],mode:"perspective"|"orthographic"):P2{
  let p=v;
  p=rotatePlane(p,0,3,angles[0]);
  p=rotatePlane(p,1,3,angles[1]);
  p=rotatePlane(p,2,3,angles[2]);
  p=rotatePlane(p,0,1,angles[3]);
  const wDistance=3.8;
- const factor4=wDistance/(wDistance-p[3]);
+ const factor4=mode==="perspective"?wDistance/(wDistance-p[3]):1;
  const x=p[0]*factor4,y=p[1]*factor4,z=p[2]*factor4;
- const camera=5.5/(5.5-z);
+ const camera=mode==="perspective"?5.5/(5.5-z):1;
  return {x:x*camera,y:y*camera,depth:z,w:p[3]};
 }
 
@@ -41,10 +41,10 @@ export default function DimensionsExperience(){
   if(!canvas||!ctx)return;
   const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2;
   ctx.clearRect(0,0,w,h);
-  const points=vertices.map(v=>project(v,angles));
+  const points=vertices.map(v=>project(v,angles,projection));
   const projected=points.map(p=>{
    const scale=projection==="perspective"?1:1/(1+Math.abs(p.depth)*.12);
-   return {x:cx+p.x*112*scale,y:cy+p.y*112*scale,depth:p.depth,w:p.w};
+   return {x:cx+p.x*112,y:cy+p.y*112,depth:p.depth,w:p.w};
   });
   const ordered=edges.map(([a,b])=>({a:projected[a],b:projected[b],depth:(projected[a].depth+projected[b].depth)/2})).sort((a,b)=>a.depth-b.depth);
   for(const line of ordered){
