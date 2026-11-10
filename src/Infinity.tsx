@@ -15,7 +15,7 @@ const landmarks = [
 
 function escapePoint(cx: number, cy: number, limit: number): Point {
   let x = 0, y = 0, n = 0;
-  while (x*x + y*y <= 256 && n < limit) {
+  while (x*x + y*y <= 4 && n < limit) {
     const nextX = x*x - y*y + cx;
     y = 2*x*y + cy;
     x = nextX;
