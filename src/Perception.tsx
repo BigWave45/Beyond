@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { ArrowLeftRight, Eye, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import { RefreshCw } from "lucide-react";
 import "./perception.css";
 
 type TrialDot={x:number;y:number;tilt:number;target:boolean};
@@ -16,7 +16,6 @@ export default function PerceptionExperience(){
  const [found,setFound]=useState(false);
  const [attempts,setAttempts]=useState(0);
  const [message,setMessage]=useState("Find the one line that is tilted sideways.");
- const targetIndex=useMemo(()=>dots.findIndex(d=>d.target),[dots]);
  const newTrial=()=>{setDots(makeSearch());setFound(false);setMessage("Find the one line that is tilted sideways.");};
  const choose=(i:number)=>{
   if(found)return;
