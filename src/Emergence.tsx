@@ -12,8 +12,9 @@ const presets = [
 ];
 type Params={feed:number;kill:number;paused:boolean};
 type Probe={x:number;y:number;u:number;v:number;reaction:number;diffU:number;diffV:number;rateU:number;rateV:number};
-type Sim={reset:()=>void;inject:(x:number,y:number,radius:number)=>void;inspect:(x:number,y:number)=>Probe;save:()=>void};
+type Sim={reset:()=>void;inject:(x:number,y:number,radius:number)=>void;inspect:(x:number,y:number)=>Probe;save:()=>FieldSnapshot|null;restore:(snapshot:FieldSnapshot)=>boolean};
 type FieldSnapshot={version:1;iteration:number;u:string;v:string};
+type SavedExperiment={id:string;name:string;savedAt:string;feed:number;kill:number;preset:number;field:FieldSnapshot};
 function encodeField(field:Float32Array){const bytes=new Uint8Array(field.buffer,field.byteOffset,field.byteLength);let binary="";for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(binary);}
 function decodeField(encoded:string){const binary=atob(encoded),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return new Float32Array(bytes.buffer);}
 type Sample={active:number;mean:number;edge:number};
@@ -73,7 +74,7 @@ export default function Emergence(){
  const [step,setStep]=usePersistentState("emergence:step",0),[history,setHistory]=usePersistentState<number[]>("emergence:history",[]);
  const [fieldSnapshot,setFieldSnapshot]=usePersistentState<FieldSnapshot|null>("emergence:fieldSnapshot",null);
  const [baseline,setBaseline]=usePersistentState("emergence:baseline",{feed:0.055,kill:0.062});
- const [showModel,setShowModel]=useState(false);
+ const [showModel,setShowModel]=useState(false);\n const [savedExperiments,setSavedExperiments]=usePersistentState<SavedExperiment[]>("emergence:savedExperiments",[]);\n const [saveName,setSaveName]=useState("My experiment");\n const [selectedSave,setSelectedSave]=useState("");
  const [brush,setBrush]=usePersistentState("emergence:brush",5);
  const [probe,setProbe]=useState<Probe|null>(null);
  const painting=useRef(false);
@@ -81,7 +82,7 @@ export default function Emergence(){
  const [predictionRevealed,setPredictionRevealed]=useState(false);
  params.current={feed,kill,paused};
  const choose=(i:number)=>{setPreset(i);setFeed(presets[i].f);setKill(presets[i].k);setPaused(false);sim.current?.reset();setHistory([]);setStep(0);};
- const reset=()=>{sim.current?.reset();setPaused(false);setHistory([]);setStep(0);};
+ const reset=()=>{sim.current?.reset();setPaused(false);setHistory([]);setStep(0);};\n const saveExperiment=()=>{const field=sim.current?.save();if(!field)return;const item:SavedExperiment={id:Date.now().toString(),name:saveName.trim()||"Untitled experiment",savedAt:new Date().toISOString(),feed,kill,preset,field};setSavedExperiments(old=>[item,...old].slice(0,5));setSelectedSave(item.id);};\n const loadExperiment=()=>{const item=savedExperiments.find(x=>x.id===selectedSave);if(!item||!sim.current?.restore(item.field))return;setFeed(item.feed);setKill(item.kill);setPreset(item.preset);setPaused(true);setStep(item.field.iteration);};
  useEffect(()=>{
   const canvas=canvasRef.current,ctx=canvas?.getContext("2d",{alpha:false}); if(!canvas||!ctx)return;
   canvas.width=N;canvas.height=N;const count=N*N;
@@ -92,13 +93,13 @@ export default function Emergence(){
   const inject=(x:number,y:number,radius:number)=>{const cx=Math.floor(x*N),cy=Math.floor(y*N);seed(cx,cy,radius);};
   const lap=(a:Float32Array,x:number,y:number,i:number)=>{const l=y*N+(x+N-1)%N,r=y*N+(x+1)%N,t=((y+N-1)%N)*N+x,b=((y+1)%N)*N+x;const tl=((y+N-1)%N)*N+(x+N-1)%N,tr=((y+N-1)%N)*N+(x+1)%N,bl=((y+1)%N)*N+(x+N-1)%N,br=((y+1)%N)*N+(x+1)%N;return -a[i]+.2*(a[l]+a[r]+a[t]+a[b])+.05*(a[tl]+a[tr]+a[bl]+a[br]);};
   const render=()=>{let active=0,total=0,edges=0;for(let y=0;y<N;y++)for(let x=0;x<N;x++){const i=y*N+x,z=v[i],q=Math.max(0,Math.min(1,z*3.1));if(z>.08)active++;total+=z;if((z>.08)!==(v[y*N+(x+1)%N]>.08))edges++;const p=i*4,t=Math.pow(q,.72);const ink=Math.round(12+t*224);pixels.data[p]=ink;pixels.data[p+1]=Math.round(15+t*222);pixels.data[p+2]=Math.round(22+t*210);pixels.data[p+3]=255;}ctx.putImageData(pixels,0,0);if(frame%20===0){const a=active/count*100,m=total/count,e=edges/(N*N)*100;setStats({active:a,mean:m,edge:e});setStep(iteration);setHistory(old=>[...old.slice(-59),a]);}};
-  const saveField=()=>{try{const snapshot:FieldSnapshot={version:1,iteration,u:encodeField(u),v:encodeField(v)};setFieldSnapshot(snapshot);localStorage.setItem("beyond:emergence:fieldSnapshot",JSON.stringify(snapshot));}catch{/* Storage quota or browser encoding limits: continue simulation without a snapshot. */}};
+  const saveField=():FieldSnapshot|null=>{try{const snapshot:FieldSnapshot={version:1,iteration,u:encodeField(u),v:encodeField(v)};setFieldSnapshot(snapshot);localStorage.setItem("beyond:emergence:fieldSnapshot",JSON.stringify(snapshot));return snapshot;}catch{return null;}};\n  const restoreField=(snapshot:FieldSnapshot)=>{try{const savedU=decodeField(snapshot.u),savedV=decodeField(snapshot.v);if(snapshot.version!==1||savedU.length!==count||savedV.length!==count)return false;u.set(savedU);v.set(savedV);iteration=snapshot.iteration;setStep(iteration);setFieldSnapshot(snapshot);render();return true;}catch{return false;}};
   const inspect=(x:number,y:number):Probe=>{const cx=Math.max(0,Math.min(N-1,Math.floor(x*N))),cy=Math.max(0,Math.min(N-1,Math.floor(y*N))),i=cy*N+cx,a=u[i],b=v[i],reaction=a*b*b,diffU=DU*lap(u,cx,cy,i),diffV=DV*lap(v,cx,cy,i),rateU=diffU-reaction+params.current.feed*(1-a),rateV=diffV+reaction-(params.current.feed+params.current.kill)*b;return{x:cx,y:cy,u:a,v:b,reaction,diffU,diffV,rateU,rateV};};
   const restored=fieldSnapshot;
   if(restored?.version===1){try{const savedU=decodeField(restored.u),savedV=decodeField(restored.v);if(savedU.length===count&&savedV.length===count){u.set(savedU);v.set(savedV);iteration=restored.iteration;setStep(iteration);}}catch{/* Invalid or old snapshots are ignored. */}}
   let lastSave=Date.now();
   const tick=()=>{if(!params.current.paused){for(let pass=0;pass<2;pass++){const {feed:f,kill:k}=params.current;for(let y=0;y<N;y++)for(let x=0;x<N;x++){const i=y*N+x,a=u[i],b=v[i],reaction=a*b*b;nu[i]=Math.max(0,Math.min(1,a+DU*lap(u,x,y,i)-reaction+f*(1-a)));nv[i]=Math.max(0,Math.min(1,b+DV*lap(v,x,y,i)+reaction-(f+k)*b));}[u,nu]=[nu,u];[v,nv]=[nv,v];iteration++;}}if(frame++%2===0)render();if(Date.now()-lastSave>8000){saveField();lastSave=Date.now();}raf=requestAnimationFrame(tick);};
-  if(!restored){resetField();}render();sim.current={reset:resetField,inject,inspect,save:saveField};const onPageHide=()=>saveField();window.addEventListener("pagehide",onPageHide);raf=requestAnimationFrame(tick);return()=>{saveField();window.removeEventListener("pagehide",onPageHide);cancelAnimationFrame(raf);sim.current=null;};
+  if(!restored){resetField();}render();sim.current={reset:resetField,inject,inspect,save:saveField,restore:restoreField};const onPageHide=()=>saveField();window.addEventListener("pagehide",onPageHide);raf=requestAnimationFrame(tick);return()=>{saveField();window.removeEventListener("pagehide",onPageHide);cancelAnimationFrame(raf);sim.current=null;};
  },[]);
  const pointerPosition=(e:PointerEvent<HTMLCanvasElement>)=>{const r=e.currentTarget.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};};
  const pointerDown=(e:PointerEvent<HTMLCanvasElement>)=>{const p=pointerPosition(e);painting.current=true;e.currentTarget.setPointerCapture(e.pointerId);sim.current?.inject(p.x,p.y,brush);if(sim.current)setProbe(sim.current.inspect(p.x,p.y));};
