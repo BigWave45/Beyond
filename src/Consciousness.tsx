@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { usePersistentState } from "./usePersistentState";
 import { RefreshCw } from "lucide-react";
 import "./consciousness.css";
