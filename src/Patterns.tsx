@@ -22,12 +22,10 @@ function expand(axiom:string,rule:string,n:number){
 }
 function traceGrammar(ctx:CanvasRenderingContext2D,grammar:string,angle:number,lengthRatio:number,iterations:number,width:number,height:number){
  const stack:{x:number;y:number;heading:number;length:number;depth:number}[]=[];
- const maxDepth=Math.max(1,iterations);
  const base=Math.min(height*.19,width*.075);
  let x=width/2,y=height*.91,heading=-Math.PI/2,len=base;
  const segments:{a:Point;b:Point;depth:number}[]=[];
- const step=base*Math.pow(lengthRatio,Math.max(0,iterations-1));
- len=step;
+ len=base;
  for(const token of grammar){
   if(token==="F"||token==="X"){
    const nx=x+Math.cos(heading)*len,ny=y+Math.sin(heading)*len;
@@ -43,8 +41,10 @@ function traceGrammar(ctx:CanvasRenderingContext2D,grammar:string,angle:number,l
  }
  const maxY=Math.max(...segments.map(s=>s.a.y),...segments.map(s=>s.b.y),0);
  const minY=Math.min(...segments.map(s=>s.a.y),...segments.map(s=>s.b.y),height);
- const extent=Math.max(1,height*.88/(maxY-minY||1));
- ctx.save();ctx.translate(width/2,height*.91);ctx.scale(extent,extent);ctx.translate(-width/2,-height*.91);
+ const maxX=Math.max(...segments.map(s=>s.a.x),...segments.map(s=>s.b.x),width/2);
+ const minX=Math.min(...segments.map(s=>s.a.x),...segments.map(s=>s.b.x),width/2);
+ const extent=Math.min(width*.86/(maxX-minX||1),height*.84/(maxY-minY||1));
+ ctx.save();ctx.translate(width/2,height*.91);ctx.scale(extent,extent);ctx.translate(-(maxX+minX)/2,-maxY);
  segments.forEach((s,i)=>{
   const t=i/Math.max(1,segments.length-1);
   ctx.beginPath();ctx.moveTo(s.a.x,s.a.y);ctx.lineTo(s.b.x,s.b.y);
