@@ -5,6 +5,7 @@ import DimensionsExperience from "./Dimensions";
 import PerceptionExperience from "./Perception";
 import PatternsExperience from "./Patterns";
 import ConsciousnessExperience from "./Consciousness";
+import ArtExperience from "./Art";
 import { ArrowDown, ArrowRight, ArrowUpRight, Menu, X, Sparkles } from "lucide-react";
 
 type World = {
@@ -48,6 +49,7 @@ export default function App() {
   const [showPerception, setShowPerception] = useState(false);
   const [showPatterns, setShowPatterns] = useState(false);
   const [showConsciousness, setShowConsciousness] = useState(false);
+  const [showArt, setShowArt] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = active || menuOpen ? "hidden" : "";
@@ -56,6 +58,15 @@ export default function App() {
 
   const openWorld = (world: World) => { setActive(world); setMenuOpen(false); };
   const scrollToWorlds = () => document.getElementById("worlds")?.scrollIntoView({ behavior: "smooth" });
+
+  if (showArt) return <main className="experience-shell">
+    <header className="topbar">
+      <a className="wordmark" href="#top" onClick={(e) => { e.preventDefault(); setShowArt(false); }} aria-label="Return to Beyond home"><span className="wordmark-symbol">B</span><span>BEYOND</span></a>
+      <span className="topbar-note">ART / FIELD STUDY 007</span>
+      <button className="explore-button" onClick={() => setShowArt(false)}><span>BACK TO THE WORLDS</span><ArrowRight size={17} /></button>
+    </header>
+    <ArtExperience />
+  </main>;
 
   if (showConsciousness) return <main className="experience-shell">
     <header className="topbar">
@@ -148,7 +159,7 @@ export default function App() {
     <footer><a className="wordmark" href="#top"><span className="wordmark-symbol">B</span><span>BEYOND</span></a><span>AN OPEN-ENDED EXPLORATION</span><span>© 2026 — MADE OF QUESTIONS</span></footer>
 
     {active && <div className="world-overlay" role="dialog" aria-modal="true" aria-labelledby="world-title" onClick={() => setActive(null)}>
-      <div className="world-detail" onClick={e => e.stopPropagation()}><button className="detail-close" onClick={() => setActive(null)} aria-label="Close world"><X /></button><WorldArtwork className={active.className} /><div className="detail-content"><span className="eyebrow">{active.number} / 06 — {active.category}</span><h2 id="world-title">{active.name}<em>.</em></h2><p className="detail-line">{active.line}</p><p className="detail-description">{active.detail}</p>{active.id === "patterns" && <button className="detail-next" onClick={() => { setActive(null); setShowEmergence(true); }}>OPEN FIELD STUDY 001 — HOW DOES ORDER EMERGE? <ArrowRight size={16} /></button>}{active.id === "patterns" && <button className="detail-next" onClick={() => { setActive(null); setShowPatterns(true); }}>OPEN FIELD STUDY 005 — HOW CAN A FEW RULES GROW A WORLD? <ArrowRight size={16} /></button>}{active.id === "infinity" && <button className="detail-next" onClick={() => { setActive(null); setShowInfinity(true); }}>OPEN FIELD STUDY 002 — HOW MUCH DETAIL CAN INFINITY CONTAIN? <ArrowRight size={16} /></button>}{active.id === "dimensions" && <button className="detail-next" onClick={() => { setActive(null); setShowDimensions(true); }}>OPEN FIELD STUDY 003 — WHAT DOES A SHAPE LOOK LIKE BEYOND SPACE? <ArrowRight size={16} /></button>}{active.id === "perception" && <button className="detail-next" onClick={() => { setActive(null); setShowPerception(true); }}>OPEN FIELD STUDY 004 — HOW MUCH OF THE WORLD DO YOU ACTUALLY SEE? <ArrowRight size={16} /></button>}{active.id === "consciousness" && <button className="detail-next" onClick={() => { setActive(null); setShowConsciousness(true); }}>OPEN FIELD STUDY 006 — WHY IS THERE SOMETHING IT FEELS LIKE? <ArrowRight size={16} /></button>}<div className="detail-foot"><span>THIS WORLD IS GROWING</span><span>EXPERIENCE COMING INTO FOCUS <span className="pulse-dot" /></span></div></div><button className="detail-next" onClick={() => setActive(worlds[(worlds.findIndex(w => w.id === active.id) + 1) % worlds.length])}>NEXT WORLD <ArrowRight size={16} /></button></div>
+      <div className="world-detail" onClick={e => e.stopPropagation()}><button className="detail-close" onClick={() => setActive(null)} aria-label="Close world"><X /></button><WorldArtwork className={active.className} /><div className="detail-content"><span className="eyebrow">{active.number} / 06 — {active.category}</span><h2 id="world-title">{active.name}<em>.</em></h2><p className="detail-line">{active.line}</p><p className="detail-description">{active.detail}</p>{active.id === "patterns" && <button className="detail-next" onClick={() => { setActive(null); setShowEmergence(true); }}>OPEN FIELD STUDY 001 — HOW DOES ORDER EMERGE? <ArrowRight size={16} /></button>}{active.id === "patterns" && <button className="detail-next" onClick={() => { setActive(null); setShowPatterns(true); }}>OPEN FIELD STUDY 005 — HOW CAN A FEW RULES GROW A WORLD? <ArrowRight size={16} /></button>}{active.id === "infinity" && <button className="detail-next" onClick={() => { setActive(null); setShowInfinity(true); }}>OPEN FIELD STUDY 002 — HOW MUCH DETAIL CAN INFINITY CONTAIN? <ArrowRight size={16} /></button>}{active.id === "dimensions" && <button className="detail-next" onClick={() => { setActive(null); setShowDimensions(true); }}>OPEN FIELD STUDY 003 — WHAT DOES A SHAPE LOOK LIKE BEYOND SPACE? <ArrowRight size={16} /></button>}{active.id === "perception" && <button className="detail-next" onClick={() => { setActive(null); setShowPerception(true); }}>OPEN FIELD STUDY 004 — HOW MUCH OF THE WORLD DO YOU ACTUALLY SEE? <ArrowRight size={16} /></button>}{active.id === "consciousness" && <button className="detail-next" onClick={() => { setActive(null); setShowConsciousness(true); }}>OPEN FIELD STUDY 006 — WHY IS THERE SOMETHING IT FEELS LIKE? <ArrowRight size={16} /></button>}{active.id === "art" && <button className="detail-next" onClick={() => { setActive(null); setShowArt(true); }}>OPEN FIELD STUDY 007 — MAKE A MARK. DISCOVER ITS WORLD. <ArrowRight size={16} /></button>}<div className="detail-foot"><span>THIS WORLD IS GROWING</span><span>EXPERIENCE COMING INTO FOCUS <span className="pulse-dot" /></span></div></div><button className="detail-next" onClick={() => setActive(worlds[(worlds.findIndex(w => w.id === active.id) + 1) % worlds.length])}>NEXT WORLD <ArrowRight size={16} /></button></div>
     </div>}
   </main>;
 }
