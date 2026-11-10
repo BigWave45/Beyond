@@ -43,7 +43,6 @@ export default function DimensionsExperience(){
   ctx.clearRect(0,0,w,h);
   const points=vertices.map(v=>project(v,angles,projection));
   const projected=points.map(p=>{
-   const scale=projection==="perspective"?1:1/(1+Math.abs(p.depth)*.12);
    return {x:cx+p.x*112,y:cy+p.y*112,depth:p.depth,w:p.w};
   });
   const ordered=edges.map(([a,b])=>({a:projected[a],b:projected[b],depth:(projected[a].depth+projected[b].depth)/2})).sort((a,b)=>a.depth-b.depth);
