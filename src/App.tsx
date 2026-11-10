@@ -37,6 +37,7 @@ export default function App() {
   const [active, setActive] = useState<World | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [entered, setEntered] = useState(false);
+  const [showEmergence, setShowEmergence] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = active || menuOpen ? "hidden" : "";
@@ -45,6 +46,15 @@ export default function App() {
 
   const openWorld = (world: World) => { setActive(world); setMenuOpen(false); };
   const scrollToWorlds = () => document.getElementById("worlds")?.scrollIntoView({ behavior: "smooth" });
+
+  if (showEmergence) return <main className="experience-shell">
+    <header className="topbar">
+      <a className="wordmark" href="#top" onClick={(e) => { e.preventDefault(); setShowEmergence(false); }} aria-label="Return to Beyond home"><span className="wordmark-symbol">B</span><span>BEYOND</span></a>
+      <span className="topbar-note">PATTERNS / FIELD STUDY 001</span>
+      <button className="explore-button" onClick={() => setShowEmergence(false)}><span>BACK TO THE WORLDS</span><ArrowRight size={17} /></button>
+    </header>
+    <Emergence />
+  </main>;
 
   return <main>
     <header className="topbar">
@@ -70,8 +80,6 @@ export default function App() {
 
     <section className="intro-strip" id="manifesto"><span className="eyebrow">A DIFFERENT KIND OF EXPLORATION</span><p>Not everything meaningful can be explained.<br /><em>Some things have to be experienced.</em></p><span className="intro-aside">ART × SCIENCE × WONDER</span></section>
 
-    <Emergence />
-
     <section className="worlds-section" id="worlds">
       <div className="section-heading"><div><span className="eyebrow">CHOOSE YOUR FIRST DOOR</span><h2>Six ways <em>in.</em></h2></div><span className="section-count">01 / 06<br />THE WORLDS</span></div>
       <div className="world-grid">{worlds.map((world) => <button className="world-card" key={world.id} onClick={() => openWorld(world)}>
@@ -85,7 +93,7 @@ export default function App() {
     <footer><a className="wordmark" href="#top"><span className="wordmark-symbol">B</span><span>BEYOND</span></a><span>AN OPEN-ENDED EXPLORATION</span><span>© 2026 — MADE OF QUESTIONS</span></footer>
 
     {active && <div className="world-overlay" role="dialog" aria-modal="true" aria-labelledby="world-title" onClick={() => setActive(null)}>
-      <div className="world-detail" onClick={e => e.stopPropagation()}><button className="detail-close" onClick={() => setActive(null)} aria-label="Close world"><X /></button><WorldArtwork className={active.className} /><div className="detail-content"><span className="eyebrow">{active.number} / 06 — {active.category}</span><h2 id="world-title">{active.name}<em>.</em></h2><p className="detail-line">{active.line}</p><p className="detail-description">{active.detail}</p><div className="detail-foot"><span>THIS WORLD IS GROWING</span><span>EXPERIENCE COMING INTO FOCUS <span className="pulse-dot" /></span></div></div><button className="detail-next" onClick={() => setActive(worlds[(worlds.findIndex(w => w.id === active.id) + 1) % worlds.length])}>NEXT WORLD <ArrowRight size={16} /></button></div>
+      <div className="world-detail" onClick={e => e.stopPropagation()}><button className="detail-close" onClick={() => setActive(null)} aria-label="Close world"><X /></button><WorldArtwork className={active.className} /><div className="detail-content"><span className="eyebrow">{active.number} / 06 — {active.category}</span><h2 id="world-title">{active.name}<em>.</em></h2><p className="detail-line">{active.line}</p><p className="detail-description">{active.detail}</p>{active.id === "patterns" && <button className="detail-next" onClick={() => { setActive(null); setShowEmergence(true); }}>OPEN FIELD STUDY 001 — HOW DOES ORDER EMERGE? <ArrowRight size={16} /></button>}<div className="detail-foot"><span>THIS WORLD IS GROWING</span><span>EXPERIENCE COMING INTO FOCUS <span className="pulse-dot" /></span></div></div><button className="detail-next" onClick={() => setActive(worlds[(worlds.findIndex(w => w.id === active.id) + 1) % worlds.length])}>NEXT WORLD <ArrowRight size={16} /></button></div>
     </div>}
   </main>;
 }
