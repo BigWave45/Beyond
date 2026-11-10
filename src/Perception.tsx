@@ -14,8 +14,8 @@ export default function PerceptionExperience(){
  const [face,setFace]=usePersistentState<"upper"|"lower">("perception:face","upper");
  const [showValues,setShowValues]=usePersistentState("perception:showValues",false);
  const [dots,setDots]=usePersistentState<TrialDot[]>("perception:dots",()=>makeSearch());
- const [found,setFound]=useState(false);
- const [attempts,setAttempts]=useState(0);
+ const [found,setFound]=usePersistentState("perception:found",false);
+ const [attempts,setAttempts]=usePersistentState("perception:attempts",0);
  const [message,setMessage]=useState("Find the one line that is tilted sideways.");
  const newTrial=()=>{setDots(makeSearch());setFound(false);setMessage("Find the one line that is tilted sideways.");};
  const choose=(i:number)=>{
