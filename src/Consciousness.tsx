@@ -11,7 +11,6 @@ export default function ConsciousnessExperience(){
  const [report,setReport]=useState(false);
  const [body,setBody]=useState<"same"|"different">("same");
  const [memory,setMemory]=useState<"intact"|"partial"|"lost">("intact");
- const [values,setValues]=useState(false);
  const activation=useMemo(()=>Math.min(100,Math.round(signal*(.35+recurrent/100))),[signal,recurrent]);
  const broadcast=activation>=55;
  const reset=()=>{setSignal(55);setRecurrent(60);setReport(false);};
