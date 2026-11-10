@@ -5,6 +5,12 @@ import "./emergence.css";
 const SIZE = 176;
 const DU = 0.16;
 const DV = 0.08;
+const regimes = [
+  { name:"Spots", f:0.055, k:0.062, note:"Local activator regions persist while surrounding activity is suppressed. Watch spots compete, split or disappear.", question:"Increase kill slowly. When do the spots fade?" },
+  { name:"Mazes", f:0.029, k:0.057, note:"Connected labyrinth-like bands can form. Small changes can break or reconnect pathways.", question:"Can you find where the connected bands fragment?" },
+  { name:"Waves", f:0.018, k:0.051, note:"Excitation can travel as moving fronts. The initial disturbance determines where activity begins.", question:"Tap the field. How far does the disturbance travel?" },
+  { name:"Splitting", f:0.0367, k:0.0649, note:"Some parameter regions produce spot growth and splitting. This is a mathematical pattern, not literal cell division.", question:"Can one spot divide into two?" }
+];
 
 type Parameters = { feed: number; kill: number; paused: boolean };
 type Simulation = { reset: () => void; inject: (x: number, y: number) => void };
