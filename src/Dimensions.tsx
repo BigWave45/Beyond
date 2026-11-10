@@ -6,7 +6,7 @@ type V4=[number,number,number,number];
 type P2={x:number;y:number;depth:number;w:number};
 const vertices:V4[]=Array.from({length:16},(_,i)=>[
   i&1?1:-1,i&2?1:-1,i&4?1:-1,i&8?1:-1
-]);
+] as V4);
 const edges=vertices.flatMap((v,i)=>vertices.flatMap((w,j)=>
   j>i&&v.filter((n,k)=>n!==w[k]).length===1?[[i,j] as [number,number]]:[]
 ));
