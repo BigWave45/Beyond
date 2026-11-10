@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { ArrowDownLeft, Minus, Plus, RotateCcw } from "lucide-react";
 import "./infinity.css";
+import { usePersistentState } from "./usePersistentState";
 
 type Point = { x:number; y:number; iterations:number; escaped:boolean };
 type View = { x:number; y:number; zoom:number };
@@ -31,10 +32,10 @@ export default function InfinityExperience(){
  const wrapRef=useRef<HTMLDivElement>(null);
  const dragRef=useRef<{x:number;y:number;cx:number;cy:number;distance:number}|null>(null);
  const renderToken=useRef(0);
- const [view,setView]=useState<View>({x:-.5,y:0,zoom:1});
- const [iterations,setIterations]=useState(160);
- const [selected,setSelected]=useState<Point|null>(null);
- const [landmark,setLandmark]=useState(0);
+ const [view,setView]=usePersistentState<View>("infinity:view",{x:-.5,y:0,zoom:1});
+ const [iterations,setIterations]=usePersistentState("infinity:iterations",160);
+ const [selected,setSelected]=usePersistentState<Point|null>("infinity:selected",null);
+ const [landmark,setLandmark]=usePersistentState("infinity:landmark",0);
  const [dragging,setDragging]=useState(false);
  const [rendering,setRendering]=useState(false);
  const [resolution,setResolution]=useState("—");\n const [sizeVersion,setSizeVersion]=useState(0);
