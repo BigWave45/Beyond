@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { ArrowDownLeft, Minus, Plus, RotateCcw, Crosshair } from "lucide-react";
+import { ArrowDownLeft, Minus, Plus, RotateCcw } from "lucide-react";
 import "./infinity.css";
 
 type Point = { x:number; y:number; iterations:number; escaped:boolean };
@@ -9,7 +9,7 @@ const landmarks=[
  {name:"SEAHORSE VALLEY",x:-.75,y:.1,zoom:7,note:"Spiral filaments curl around a narrow valley. Small structures echo the geometry of the whole set."},
  {name:"THE ELEPHANT VALLEY",x:.28,y:0,zoom:3.2,note:"A busy boundary region where bulbs, spirals and miniature structures cluster."},
  {name:"THE PERIOD-2 BULB",x:-1,y:0,zoom:8,note:"The large bulb attached to the left of the main cardioid. Its orbit has period two."},
- {name:"THE DOUBLE SPIRAL",x:-.088,.654,y:35,note:"A detailed boundary region where filaments wind into a nested spiral."}
+ {name:"THE DOUBLE SPIRAL",x:-.088,y:.654,zoom:35,note:"A detailed boundary region where filaments wind into a nested spiral."}
 ];
 
 function orbit(cx:number,cy:number,limit:number):Point{
