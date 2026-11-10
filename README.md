@@ -49,3 +49,6 @@ npm run build
 ## Status
 
 Early development. The homepage and world introduction panels are the first implementation milestone; full interactive experiments are not yet complete.
+
+
+Cloudflare Pages preview integration is configured for this repository.
