@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Download, RefreshCw, Shuffle } from "lucide-react";
 import "./patterns.css";
 import { usePersistentState } from "./usePersistentState";
