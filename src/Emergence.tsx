@@ -34,7 +34,7 @@ export default function Emergence(){
   reset();render();sim.current={reset,inject};raf=requestAnimationFrame(tick);return()=>{cancelAnimationFrame(raf);sim.current=null;};
  },[]);
  const pointer=(e:PointerEvent<HTMLCanvasElement>)=>{const r=e.currentTarget.getBoundingClientRect();sim.current?.inject((e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height);};
- const activePreset=presets[preset];
+ const activePreset=presets[preset] ?? {name:"Custom parameters",description:"You changed the model by hand. Observe how the field responds to this combination.",question:"Move one control at a time, then compare against a preset."};
  return <section className="emergence-section" id="emergence">
   <div className="emergence-heading"><span className="eyebrow"><Waves size={13}/> A STUDY IN EMERGENCE</span><h2>Complexity has <em>rules.</em></h2><p>Two substances interact, spread and change. No one draws the final pattern. It emerges from local rules.</p></div>
   <div className="emergence-lab">
