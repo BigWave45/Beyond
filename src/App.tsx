@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Emergence from "./Emergence";
 import { ArrowDown, ArrowRight, ArrowUpRight, Menu, X, Sparkles } from "lucide-react";
 
 type World = {
@@ -68,6 +69,8 @@ export default function App() {
     </section>
 
     <section className="intro-strip" id="manifesto"><span className="eyebrow">A DIFFERENT KIND OF EXPLORATION</span><p>Not everything meaningful can be explained.<br /><em>Some things have to be experienced.</em></p><span className="intro-aside">ART × SCIENCE × WONDER</span></section>
+
+    <Emergence />
 
     <section className="worlds-section" id="worlds">
       <div className="section-heading"><div><span className="eyebrow">CHOOSE YOUR FIRST DOOR</span><h2>Six ways <em>in.</em></h2></div><span className="section-count">01 / 06<br />THE WORLDS</span></div>
