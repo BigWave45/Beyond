@@ -1,16 +1,17 @@
 import { useMemo, useState } from "react";
+import { usePersistentState } from "./usePersistentState";
 import { RefreshCw } from "lucide-react";
 import "./consciousness.css";
 
 type Study="access"|"identity"|"explanations";
 const nodes=[{x:18,y:48},{x:35,y:23},{x:35,y:72},{x:54,y:48},{x:72,y:23},{x:72,y:72},{x:88,y:48}];
 export default function ConsciousnessExperience(){
- const [study,setStudy]=useState<Study>("access");
- const [signal,setSignal]=useState(55);
- const [recurrent,setRecurrent]=useState(60);
- const [report,setReport]=useState(false);
- const [body,setBody]=useState<"same"|"different">("same");
- const [memory,setMemory]=useState<"intact"|"partial"|"lost">("intact");
+ const [study,setStudy]=usePersistentState<Study>("consciousness:study","access");
+ const [signal,setSignal]=usePersistentState("consciousness:signal",55);
+ const [recurrent,setRecurrent]=usePersistentState("consciousness:recurrent",60);
+ const [report,setReport]=usePersistentState("consciousness:report",false);
+ const [body,setBody]=usePersistentState<"same"|"different">("consciousness:body","same");
+ const [memory,setMemory]=usePersistentState<"intact"|"partial"|"lost">("consciousness:memory","intact");
  const activation=useMemo(()=>Math.min(100,Math.round(signal*(.35+recurrent/100))),[signal,recurrent]);
  const broadcast=activation>=55;
  const reset=()=>{setSignal(55);setRecurrent(60);setReport(false);};
