@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { RotateCcw, Move3D } from "lucide-react";
 import "./dimensions.css";
+import { usePersistentState } from "./usePersistentState";
 
 type V4=[number,number,number,number];
 type P2={x:number;y:number;depth:number;w:number};
@@ -32,9 +33,9 @@ function project(v:V4,angles:number[],mode:"perspective"|"orthographic"):P2{
 export default function DimensionsExperience(){
  const canvasRef=useRef<HTMLCanvasElement>(null);
  const drag=useRef<{x:number;y:number;a:number;b:number}|null>(null);
- const [angles,setAngles]=useState([.35,.55,.15,0]);
- const [projection,setProjection]=useState<"perspective"|"orthographic">("perspective");
- const [labels,setLabels]=useState(false);
+ const [angles,setAngles]=usePersistentState("dimensions:angles",[.35,.55,.15,0]);
+ const [projection,setProjection]=usePersistentState<"perspective"|"orthographic">("dimensions:projection","perspective");
+ const [labels,setLabels]=usePersistentState("dimensions:labels",false);
  const [dragging,setDragging]=useState(false);
  useEffect(()=>{
   const canvas=canvasRef.current,ctx=canvas?.getContext("2d");
