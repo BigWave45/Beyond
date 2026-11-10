@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Download, RotateCcw, Trash2, Undo2 } from "lucide-react";
+import { Download, Trash2, Undo2 } from "lucide-react";
 import "./art.css";
 
 type Point={x:number;y:number};
