@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, Menu, X, Sparkles } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight, Menu, X, Sparkles } from "lucide-react";
 
 type World = {
   id: string;
