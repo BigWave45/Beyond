@@ -104,3 +104,55 @@
  .space-home .card-top{font-size:5px}
  .space-home .card-bottom strong{font-size:14px}
 }
+
+/* Living cosmos: telescope image, drifting star layers and restrained nebula motion */
+.space-stars{
+ animation:deepFieldDrift 110s ease-in-out infinite alternate;
+ background-size:cover,cover;
+ will-change:background-position;
+}
+.space-stars:before{
+ content:"";position:absolute;inset:-8%;pointer-events:none;z-index:0;
+ background-image:
+  radial-gradient(1px 1px at 7% 18%,rgba(255,255,255,.95) 50%,transparent 100%),
+  radial-gradient(1.5px 1.5px at 18% 68%,rgba(205,222,255,.9) 50%,transparent 100%),
+  radial-gradient(1px 1px at 29% 38%,rgba(255,255,255,.8) 50%,transparent 100%),
+  radial-gradient(2px 2px at 42% 12%,rgba(220,230,255,.9) 50%,transparent 100%),
+  radial-gradient(1px 1px at 57% 76%,rgba(255,255,255,.8) 50%,transparent 100%),
+  radial-gradient(1px 1px at 68% 29%,rgba(210,225,255,.9) 50%,transparent 100%),
+  radial-gradient(1.5px 1.5px at 81% 58%,rgba(255,255,255,.85) 50%,transparent 100%),
+  radial-gradient(1px 1px at 94% 17%,rgba(220,230,255,.85) 50%,transparent 100%);
+ background-size:310px 270px,390px 330px,270px 350px,420px 300px,350px 390px,290px 310px,430px 280px,330px 360px;
+ opacity:.58;
+ animation:starDrift 150s linear infinite,starBreath 8s ease-in-out infinite alternate;
+}
+.space-stars:after{
+ background:
+  radial-gradient(ellipse at 18% 32%,rgba(68,91,170,.22),transparent 34%),
+  radial-gradient(ellipse at 78% 68%,rgba(115,69,153,.18),transparent 38%),
+  radial-gradient(ellipse at 56% 12%,rgba(57,111,145,.12),transparent 31%),
+  linear-gradient(180deg,rgba(2,3,10,.25) 0%,rgba(2,3,10,.38) 42%,rgba(2,3,10,.7) 100%),
+  radial-gradient(ellipse at center,transparent 18%,rgba(1,2,8,.48) 100%);
+ background-size:145% 145%,155% 155%,140% 140%,100% 100%,100% 100%;
+ animation:nebulaDrift 75s ease-in-out infinite alternate;
+}
+@keyframes deepFieldDrift{
+ from{background-position:48% 46%}
+ to{background-position:53% 52%}
+}
+@keyframes starDrift{
+ from{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0}
+ to{background-position:170px 95px,-120px 140px,90px -130px,180px 100px,-130px -160px,115px 170px,-170px 80px,95px -120px}
+}
+@keyframes starBreath{from{opacity:.38}to{opacity:.72}}
+@keyframes nebulaDrift{
+ from{background-position:0% 0%,100% 100%,20% 80%,center,center;filter:hue-rotate(0deg)}
+ to{background-position:100% 60%,0% 20%,80% 0%,center,center;filter:hue-rotate(12deg)}
+}
+.space-home .map-connections path{animation:constellationPulse 9s ease-in-out infinite alternate}
+.space-home .map-connections circle{animation:constellationGlow 4.5s ease-in-out infinite alternate}
+@keyframes constellationPulse{from{stroke:rgba(160,177,229,.12)}to{stroke:rgba(175,198,255,.3)}}
+@keyframes constellationGlow{from{opacity:.35;filter:drop-shadow(0 0 2px #a9c6ee)}to{opacity:.95;filter:drop-shadow(0 0 8px #a9c6ee)}}
+@media(prefers-reduced-motion:reduce){
+ .space-stars,.space-stars:before,.space-stars:after,.space-home .map-connections path,.space-home .map-connections circle{animation:none!important}
+}
