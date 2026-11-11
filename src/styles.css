@@ -66,3 +66,41 @@
 .experience-keepalive{transform:scale(.94);opacity:0;transition:transform .75s cubic-bezier(.2,.7,.2,1),opacity .45s ease,visibility .45s}
 .experience-keepalive.experience-visible{transform:scale(1);opacity:1}
 @media(prefers-reduced-motion:reduce){.space-home,.experience-keepalive{transform:none;filter:none;transition:none}}
+
+/* Real telescope field + compact mobile world map */
+.space-stars{
+ background:#02030a url("https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2022/07/STScI-01G8H15R2PGEXQD7TYYBFJ3FT4.png?crop=faces%2Cfocalpoint&fit=clip&h=1800&w=1800") center 48%/cover no-repeat;
+ opacity:1;
+}
+.space-stars:after{
+ content:"";position:absolute;inset:0;
+ background:linear-gradient(180deg,rgba(2,3,10,.38) 0%,rgba(2,3,10,.48) 42%,rgba(2,3,10,.78) 100%),radial-gradient(ellipse at center,transparent 18%,rgba(1,2,8,.5) 100%);
+}
+.space-home .space-topbar{background:rgba(2,3,10,.42)}
+.space-home .world-card{backdrop-filter:blur(1.5px);background:rgba(4,7,18,.56)}
+@media(max-width:760px){
+ .space-home{overflow-y:auto;overscroll-behavior:contain}
+ .space-explorer{min-height:calc(100svh - 60px);padding:18px 5% 13px;justify-content:flex-start}
+ .space-title{flex:0 0 auto}
+ .space-title h1{font-size:25px;letter-spacing:.22em;margin-top:5px}
+ .space-title .eyebrow{font-size:7px}
+ .world-map{width:100%;flex:1 0 auto;min-height:0;margin:12px auto 13px;align-items:stretch}
+ .world-grid{width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:5px 0}
+ .space-home .world-card{aspect-ratio:1.42;min-height:104px;max-height:142px;border-radius:18px}
+ .space-home .world-art{border-radius:18px}
+ .space-home .world-art:before{width:58%;left:21%;top:14%}
+ .space-home .art-ring{width:80%;height:48%;left:10%;top:26%}
+ .space-home .card-top{left:12%;right:12%;top:12%;font-size:6px}
+ .space-home .card-bottom{left:12%;right:12%;bottom:11%}
+ .space-home .card-bottom strong{font-size:clamp(14px,4vw,18px)}
+ .space-home .card-arrow{width:21px;height:21px}
+ .map-connections{inset:1% 0;opacity:.45}
+ .space-footer{padding-top:10px;font-size:6px}
+}
+@media(max-width:380px){
+ .space-explorer{padding-left:4%;padding-right:4%}
+ .world-grid{gap:8px}
+ .space-home .world-card{min-height:94px;aspect-ratio:1.35}
+ .space-home .card-top{font-size:5px}
+ .space-home .card-bottom strong{font-size:14px}
+}
