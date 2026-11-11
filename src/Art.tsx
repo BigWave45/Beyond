@@ -13,14 +13,18 @@ const palettes=[
 ];
 export default function ArtExperience(){
  const canvas=useRef<HTMLCanvasElement>(null);
- const [strokes,setStrokes]=usePersistentState<Stroke[]>("art:strokes",[]);
+ const [storedStrokes,setStrokes]=usePersistentState<Stroke[]>("art:strokes",[]);
+ const strokes=Array.isArray(storedStrokes)?storedStrokes.filter((s):s is Stroke=>!!s&&Array.isArray(s.points)&&typeof s.color==="string"&&Number.isFinite(s.width)&&Number.isFinite(s.symmetry)&&typeof s.mirror==="boolean"&&s.points.every(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y))):[];
  const [color,setColor]=usePersistentState("art:color",palettes[0].colors[0]);
  const [palette,setPalette]=usePersistentState("art:palette",0);
  const [width,setWidth]=usePersistentState("art:width",3);
  const [symmetry,setSymmetry]=usePersistentState("art:symmetry",8);
  const [mirror,setMirror]=usePersistentState("art:mirror",true);
- const [drawing,setDrawing]=usePersistentState("art:showMath",false);
- const [showMath,setShowMath]=useState(false);
+ const [drawing,setDrawing]=useState(false);
+ const [showMath,setShowMath]=usePersistentState("art:showMath",false);
+ const safePalette=Number.isInteger(palette)&&palette>=0&&palette<palettes.length?palette:0;
+ const safeSymmetry=Number.isFinite(symmetry)?Math.max(1,Math.min(24,symmetry)):8;
+ const safeWidth=Number.isFinite(width)?Math.max(1,Math.min(14,width)):3;
  const active=useRef<Stroke|null>(null);
  const redraw=useCallback(()=>{
   const el=canvas.current;if(!el)return;
@@ -48,26 +52,26 @@ export default function ArtExperience(){
   };
   strokes.forEach(paint);if(active.current)paint(active.current);
  },[strokes]);
- useEffect(()=>{redraw();const el=canvas.current;if(!el)return;const observer=new ResizeObserver(redraw);observer.observe(el);return()=>observer.disconnect();},[redraw]);
+ useEffect(()=>{redraw();const el=canvas.current;if(!el)return;if(typeof ResizeObserver==="undefined"){window.addEventListener("resize",redraw);return()=>window.removeEventListener("resize",redraw);}const observer=new ResizeObserver(redraw);observer.observe(el);return()=>observer.disconnect();},[redraw]);
  const point=(e:React.PointerEvent<HTMLCanvasElement>):Point=>{
   const r=e.currentTarget.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};
  };
- const start=(e:React.PointerEvent<HTMLCanvasElement>)=>{e.currentTarget.setPointerCapture(e.pointerId);active.current={points:[point(e)],color,width,symmetry,mirror};setDrawing(true);redraw();};
+ const start=(e:React.PointerEvent<HTMLCanvasElement>)=>{e.currentTarget.setPointerCapture(e.pointerId);active.current={points:[point(e)],color,width:safeWidth,symmetry:safeSymmetry,mirror};setDrawing(true);redraw();};
  const move=(e:React.PointerEvent<HTMLCanvasElement>)=>{if(!active.current)return;active.current={...active.current,points:[...active.current.points,point(e)]};redraw();};
- const end=()=>{if(!active.current)return;setStrokes(old=>[...old,active.current as Stroke]);active.current=null;setDrawing(false);};
- const undo=()=>setStrokes(old=>old.slice(0,-1));
+ const end=()=>{if(!active.current)return;setStrokes(old=>[...(Array.isArray(old)?old:[]),active.current as Stroke]);active.current=null;setDrawing(false);};
+ const undo=()=>setStrokes(old=>(Array.isArray(old)?old:[]).slice(0,-1));
  const clear=()=>{active.current=null;setStrokes([]);setDrawing(false);};
  const exportImage=()=>{const el=canvas.current;if(!el)return;const a=document.createElement("a");a.download="beyond-art-study.png";a.href=el.toDataURL("image/png");a.click();};
- const choosePalette=(i:number)=>{setPalette(i);setColor(palettes[i].colors[0]);};
+ const choosePalette=(i:number)=>{const next=Math.max(0,Math.min(palettes.length-1,i));setPalette(next);setColor(palettes[next].colors[0]);};
  return <section className="art-experience">
   <header className="art-heading"><span className="equation-label">BEYOND FIELD NOTE / 007</span><h1>Make a mark.<br/><em>Discover its world.</em></h1><p>A drawing instrument built around symmetry. Make one gesture and let a mathematical rule repeat it through space. The result is yours to shape, inspect and keep.</p></header>
   <div className="art-studio">
    <div className="art-canvas-panel"><div className="art-canvas-top"><span>LIVE CANVAS / ROTATIONAL SYMMETRY</span><span>{strokes.length} MARKS</span></div><canvas ref={canvas} className="art-canvas" aria-label="Interactive rotational symmetry drawing canvas" onPointerDown={start} onPointerMove={move} onPointerUp={end} onPointerCancel={end} onLostPointerCapture={end}/><div className="art-canvas-bottom"><span>{drawing?"DRAWING IN PROGRESS":"TOUCH OR DRAG TO DRAW"}</span><div><button onClick={undo} disabled={!strokes.length}><Undo2 size={13}/> UNDO</button><button onClick={clear}><Trash2 size={13}/> CLEAR</button><button onClick={exportImage}><Download size={13}/> EXPORT</button></div></div></div>
    <aside className="art-controls"><span className="equation-label">COMPOSITION RULES</span>
-    <div className="art-control-group"><label>ROTATIONAL COPIES <output>{symmetry}</output></label><input type="range" min="1" max="24" value={symmetry} onChange={e=>setSymmetry(+e.target.value)}/><div className="art-hint">One stroke, repeated around a shared centre.</div></div>
+    <div className="art-control-group"><label>ROTATIONAL COPIES <output>{symmetry}</output></label><input type="range" min="1" max="24" value={safeSymmetry} onChange={e=>setSymmetry(+e.target.value)}/><div className="art-hint">One stroke, repeated around a shared centre.</div></div>
     <button className={"art-toggle "+(mirror?"selected":"")} onClick={()=>setMirror(v=>!v)}><span>REFLECT EACH COPY</span><b>{mirror?"ON":"OFF"}</b></button>
-    <div className="art-control-group"><label>BRUSH WIDTH <output>{width}px</output></label><input type="range" min="1" max="14" value={width} onChange={e=>setWidth(+e.target.value)}/></div>
-    <div className="art-control-group"><label>COLOUR SYSTEM</label><div className="art-palette-tabs">{palettes.map((p,i)=><button key={p.name} className={palette===i?"selected":""} onClick={()=>choosePalette(i)}>{p.name}</button>)}</div><div className="art-swatches">{palettes[palette].colors.map(c=><button key={c} aria-label={"Choose "+c} className={color===c?"chosen":""} style={{background:c}} onClick={()=>setColor(c)}/>)}</div></div>
+    <div className="art-control-group"><label>BRUSH WIDTH <output>{width}px</output></label><input type="range" min="1" max="14" value={safeWidth} onChange={e=>setWidth(+e.target.value)}/></div>
+    <div className="art-control-group"><label>COLOUR SYSTEM</label><div className="art-palette-tabs">{palettes.map((p,i)=><button key={p.name} className={safePalette===i?"selected":""} onClick={()=>choosePalette(i)}>{p.name}</button>)}</div><div className="art-swatches">{palettes[safePalette].colors.map(c=><button key={c} aria-label={"Choose "+c} className={color===c?"chosen":""} style={{background:c}} onClick={()=>setColor(c)}/>)}</div></div>
     <button className="art-math-toggle" onClick={()=>setShowMath(v=>!v)}>{showMath?"HIDE THE MATHEMATICS":"WHY DOES THIS MAKE SYMMETRY?"}<span>{showMath?"−":"+"}</span></button>
     {showMath&&<div className="art-math"><div className="art-formula">R(θ) = <span>[ cosθ  −sinθ<br/>sinθ   cosθ ]</span></div><p>Each copy is a rotation of your original stroke around the canvas centre. For <i>n</i> copies, the angle between copies is θ = 2π/n. Reflection adds a mirrored set.</p><p>The rotations form the cyclic symmetry group C<sub>n</sub>. With reflections, the full symmetry is related to the dihedral group D<sub>n</sub>.</p></div>}
    </aside>
