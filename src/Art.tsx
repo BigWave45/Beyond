@@ -4,7 +4,7 @@ import "./art.css";
 import { usePersistentState } from "./usePersistentState";
 
 type Point={x:number;y:number};
-type Stroke={points:Point[];color:string;width:number;symmetry:number;mirror:boolean;echoDepth:number;echoScale:number;echoTwist:number};
+type Stroke={points:Point[];color:string;width:number;symmetry:number;mirror:boolean;echoDepth:number;echoScale:number;echoTwist:number;recursionDepth:number;branchScale:number;branchAngle:number};
 const palettes=[
  {name:"Glacier",colors:["#e8f1ff","#9db8e8","#6683bd","#b5a7e8"]},
  {name:"Ember",colors:["#fff0d6","#e9a66d","#cf6c55","#9b5276"]},
@@ -14,7 +14,7 @@ const palettes=[
 export default function ArtExperience(){
  const canvas=useRef<HTMLCanvasElement>(null);
  const [storedStrokes,setStrokes]=usePersistentState<Stroke[]>("art:strokes",[]);
- const strokes:Stroke[]=Array.isArray(storedStrokes)?storedStrokes.filter((s:any)=>!!s&&Array.isArray(s.points)&&typeof s.color==="string"&&Number.isFinite(s.width)&&Number.isFinite(s.symmetry)&&typeof s.mirror==="boolean"&&s.points.every((p:any)=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y))).map((s:any)=>({...s,echoDepth:Number.isFinite(s.echoDepth)?Math.max(1,Math.min(8,s.echoDepth)):1,echoScale:Number.isFinite(s.echoScale)?Math.max(35,Math.min(90,s.echoScale)):70,echoTwist:Number.isFinite(s.echoTwist)?Math.max(-180,Math.min(180,s.echoTwist)):24})):[];
+ const strokes:Stroke[]=Array.isArray(storedStrokes)?storedStrokes.filter((s:any)=>!!s&&Array.isArray(s.points)&&typeof s.color==="string"&&Number.isFinite(s.width)&&Number.isFinite(s.symmetry)&&typeof s.mirror==="boolean"&&s.points.every((p:any)=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y))).map((s:any)=>({...s,echoDepth:Number.isFinite(s.echoDepth)?Math.max(1,Math.min(8,s.echoDepth)):1,echoScale:Number.isFinite(s.echoScale)?Math.max(35,Math.min(90,s.echoScale)):70,echoTwist:Number.isFinite(s.echoTwist)?Math.max(-180,Math.min(180,s.echoTwist)):24,recursionDepth:Number.isFinite(s.recursionDepth)?Math.max(1,Math.min(5,s.recursionDepth)):1,branchScale:Number.isFinite(s.branchScale)?Math.max(45,Math.min(85,s.branchScale)):68,branchAngle:Number.isFinite(s.branchAngle)?Math.max(5,Math.min(80,s.branchAngle)):28})):[];
  const [color,setColor]=usePersistentState("art:color",palettes[0].colors[0]);
  const [palette,setPalette]=usePersistentState("art:palette",0);
  const [width,setWidth]=usePersistentState("art:width",3);
@@ -23,6 +23,9 @@ export default function ArtExperience(){
  const [echoDepth,setEchoDepth]=usePersistentState("art:echoDepth",1);
  const [echoScale,setEchoScale]=usePersistentState("art:echoScale",70);
  const [echoTwist,setEchoTwist]=usePersistentState("art:echoTwist",24);
+ const [recursionDepth,setRecursionDepth]=usePersistentState("art:recursionDepth",1);
+ const [branchScale,setBranchScale]=usePersistentState("art:branchScale",68);
+ const [branchAngle,setBranchAngle]=usePersistentState("art:branchAngle",28);
  const [drawing,setDrawing]=useState(false);
  const [showMath,setShowMath]=usePersistentState("art:showMath",false);
  const safePalette=Number.isInteger(palette)&&palette>=0&&palette<palettes.length?palette:0;
@@ -31,6 +34,9 @@ export default function ArtExperience(){
  const safeEchoDepth=Number.isFinite(echoDepth)?Math.max(1,Math.min(8,echoDepth)):1;
  const safeEchoScale=Number.isFinite(echoScale)?Math.max(35,Math.min(90,echoScale)):70;
  const safeEchoTwist=Number.isFinite(echoTwist)?Math.max(-180,Math.min(180,echoTwist)):24;
+ const safeRecursionDepth=Number.isFinite(recursionDepth)?Math.max(1,Math.min(5,recursionDepth)):1;
+ const safeBranchScale=Number.isFinite(branchScale)?Math.max(45,Math.min(85,branchScale)):68;
+ const safeBranchAngle=Number.isFinite(branchAngle)?Math.max(5,Math.min(80,branchAngle)):28;
  const active=useRef<Stroke|null>(null);
  const redraw=useCallback(()=>{
   const el=canvas.current;if(!el)return;
@@ -53,10 +59,18 @@ export default function ArtExperience(){
       const x=(p.x-.5)*rect.width*scale*(reflected?-1:1),y=(p.y-.5)*rect.height*scale;
       return {x:cx+x*Math.cos(angle)-y*Math.sin(angle),y:cy+x*Math.sin(angle)+y*Math.cos(angle)};
      };
-     ctx.beginPath();const first=transform(stroke.points[0]);ctx.moveTo(first.x,first.y);
-     if(stroke.points.length===1){ctx.lineTo(first.x+.1,first.y+.1);}
-     else for(let i=1;i<stroke.points.length;i++){const p=transform(stroke.points[i]);ctx.lineTo(p.x,p.y);}
-     ctx.strokeStyle=stroke.color;ctx.lineWidth=Math.max(.45,stroke.width*scale);ctx.lineCap="round";ctx.lineJoin="round";ctx.stroke();
+     ctx.strokeStyle=stroke.color;ctx.lineCap="round";ctx.lineJoin="round";
+     const seed=stroke.points,origin=seed[0];
+     const drawBranch=(anchor:Point,branchAngle:number,branchScale:number,depth:number)=>{
+      const c=Math.cos(branchAngle),sn=Math.sin(branchAngle);
+      const mapped=seed.map(p=>{const x=(p.x-origin.x)*rect.width*scale*branchScale,y=(p.y-origin.y)*rect.height*scale*branchScale;return {x:anchor.x+x*c-y*sn,y:anchor.y+x*sn+y*c};});
+      ctx.beginPath();ctx.moveTo(mapped[0].x,mapped[0].y);
+      if(mapped.length===1)ctx.lineTo(mapped[0].x+.1,mapped[0].y+.1);else for(let i=1;i<mapped.length;i++)ctx.lineTo(mapped[i].x,mapped[i].y);
+      ctx.lineWidth=Math.max(.4,stroke.width*scale*branchScale);ctx.stroke();
+      if(depth>1){const tip=mapped[mapped.length-1],nextScale=branchScale*(stroke.branchScale/100),a=stroke.branchAngle*Math.PI/180;drawBranch(tip,branchAngle-a,nextScale,depth-1);drawBranch(tip,branchAngle+a,nextScale,depth-1);}
+     };
+     const first=transform(origin);
+     drawBranch(first,angle,1,stroke.recursionDepth);
     }
    }
   };
@@ -66,7 +80,7 @@ export default function ArtExperience(){
  const point=(e:React.PointerEvent<HTMLCanvasElement>):Point=>{
   const r=e.currentTarget.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};
  };
- const start=(e:React.PointerEvent<HTMLCanvasElement>)=>{e.currentTarget.setPointerCapture(e.pointerId);active.current={points:[point(e)],color,width:safeWidth,symmetry:safeSymmetry,mirror,echoDepth:safeEchoDepth,echoScale:safeEchoScale,echoTwist:safeEchoTwist};setDrawing(true);redraw();};
+ const start=(e:React.PointerEvent<HTMLCanvasElement>)=>{e.currentTarget.setPointerCapture(e.pointerId);active.current={points:[point(e)],color,width:safeWidth,symmetry:safeSymmetry,mirror,echoDepth:safeEchoDepth,echoScale:safeEchoScale,echoTwist:safeEchoTwist,recursionDepth:safeRecursionDepth,branchScale:safeBranchScale,branchAngle:safeBranchAngle};setDrawing(true);redraw();};
  const move=(e:React.PointerEvent<HTMLCanvasElement>)=>{if(!active.current)return;active.current={...active.current,points:[...active.current.points,point(e)]};redraw();};
  const end=()=>{if(!active.current)return;setStrokes(old=>[...(Array.isArray(old)?old:[]),active.current as Stroke]);active.current=null;setDrawing(false);};
  const undo=()=>setStrokes(old=>(Array.isArray(old)?old:[]).slice(0,-1));
@@ -83,10 +97,13 @@ export default function ArtExperience(){
     <div className="art-control-group"><label>SELF-SIMILAR ECHOES <output>{safeEchoDepth} LAYERS</output></label><input type="range" min="1" max="8" value={safeEchoDepth} onChange={e=>setEchoDepth(+e.target.value)}/><div className="art-hint">Repeat each mark at a smaller scale around the same centre.</div></div>
     <div className="art-control-group"><label>ECHO SCALE <output>{safeEchoScale}%</output></label><input type="range" min="35" max="90" value={safeEchoScale} onChange={e=>setEchoScale(+e.target.value)}/></div>
     <div className="art-control-group"><label>ROTATIONAL TWIST <output>{safeEchoTwist}°</output></label><input type="range" min="-180" max="180" value={safeEchoTwist} onChange={e=>setEchoTwist(+e.target.value)}/></div>
+    <div className="art-control-group"><label>RECURSIVE GENERATIONS <output>{safeRecursionDepth} LEVELS</output></label><input type="range" min="1" max="5" value={safeRecursionDepth} onChange={e=>setRecursionDepth(+e.target.value)}/><div className="art-hint">Each branch becomes a seed for two smaller branches. Level 1 draws only your original gesture.</div></div>
+    <div className="art-control-group"><label>BRANCH SCALE <output>{safeBranchScale}%</output></label><input type="range" min="45" max="85" value={safeBranchScale} onChange={e=>setBranchScale(+e.target.value)}/></div>
+    <div className="art-control-group"><label>BRANCH ANGLE <output>{safeBranchAngle}°</output></label><input type="range" min="5" max="80" value={safeBranchAngle} onChange={e=>setBranchAngle(+e.target.value)}/></div>
     <div className="art-control-group"><label>BRUSH WIDTH <output>{width}px</output></label><input type="range" min="1" max="14" value={safeWidth} onChange={e=>setWidth(+e.target.value)}/></div>
     <div className="art-control-group"><label>COLOUR SYSTEM</label><div className="art-palette-tabs">{palettes.map((p,i)=><button key={p.name} className={safePalette===i?"selected":""} onClick={()=>choosePalette(i)}>{p.name}</button>)}</div><div className="art-swatches">{palettes[safePalette].colors.map(c=><button key={c} aria-label={"Choose "+c} className={color===c?"chosen":""} style={{background:c}} onClick={()=>setColor(c)}/>)}</div></div>
     <button className="art-math-toggle" onClick={()=>setShowMath(v=>!v)}>{showMath?"HIDE THE MATHEMATICS":"WHY DOES THIS MAKE SYMMETRY?"}<span>{showMath?"−":"+"}</span></button>
-    {showMath&&<div className="art-math"><div className="art-formula">R(θ) = <span>[ cosθ  −sinθ<br/>sinθ   cosθ ]</span></div><p>Each copy is a rotation of your original stroke around the canvas centre. For <i>n</i> copies, the angle between copies is θ = 2π/n. Reflection adds a mirrored set.</p><p>The rotations form the cyclic symmetry group C<sub>n</sub>. With reflections, the full symmetry is related to the dihedral group D<sub>n</sub>.</p><p>Self-similar echoes add a sequence of scaled copies. At level k, the scale is s<sup>k</sup> and the added rotation is kφ. This is a finite transformation sequence, not an infinite fractal.</p></div>}
+    {showMath&&<div className="art-math"><div className="art-formula">R(θ) = <span>[ cosθ  −sinθ<br/>sinθ   cosθ ]</span></div><p>Each copy is a rotation of your original stroke around the canvas centre. For <i>n</i> copies, the angle between copies is θ = 2π/n. Reflection adds a mirrored set.</p><p>The rotations form the cyclic symmetry group C<sub>n</sub>. With reflections, the full symmetry is related to the dihedral group D<sub>n</sub>.</p><p>Self-similar echoes add scaled copies. Recursive generations use a branching rule: each endpoint creates two child copies, rotated by ±α and scaled by r. After d generations, the ideal branch count is 2<sup>d</sup>−1. The canvas uses a finite depth, so this is a recursive construction rather than an infinite fractal.</p></div>}
    </aside>
   </div>
   <section className="art-principle"><div><span className="equation-label">THE UNDERLYING STRUCTURE</span><h2>One gesture.<br/><em>Many relationships.</em></h2><p>Symmetry is an invariance: a transformation changes the arrangement while preserving a chosen property. Here, rotation moves each copy but preserves its shape, colour and distance from the centre.</p></div><div className="art-principle-note"><b>TRY THIS</b><p>Start with 6 copies and draw a curved line. Increase to 12 without changing the line. Notice how the composition changes even though the original gesture stays the same.</p><p>Turn reflection off. You have changed the symmetry group, not just the decoration.</p></div></section>
