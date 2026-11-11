@@ -19,12 +19,18 @@ export default function ArtExperience(){
  const [palette,setPalette]=usePersistentState("art:palette",0);
  const [width,setWidth]=usePersistentState("art:width",3);
  const [symmetry,setSymmetry]=usePersistentState("art:symmetry",8);
- const [mirror,setMirror]=usePersistentState("art:mirror",true);\n const [echoDepth,setEchoDepth]=usePersistentState("art:echoDepth",1);\n const [echoScale,setEchoScale]=usePersistentState("art:echoScale",70);\n const [echoTwist,setEchoTwist]=usePersistentState("art:echoTwist",24);
+ const [mirror,setMirror]=usePersistentState("art:mirror",true);
+ const [echoDepth,setEchoDepth]=usePersistentState("art:echoDepth",1);
+ const [echoScale,setEchoScale]=usePersistentState("art:echoScale",70);
+ const [echoTwist,setEchoTwist]=usePersistentState("art:echoTwist",24);
  const [drawing,setDrawing]=useState(false);
  const [showMath,setShowMath]=usePersistentState("art:showMath",false);
  const safePalette=Number.isInteger(palette)&&palette>=0&&palette<palettes.length?palette:0;
  const safeSymmetry=Number.isFinite(symmetry)?Math.max(1,Math.min(24,symmetry)):8;
- const safeWidth=Number.isFinite(width)?Math.max(1,Math.min(14,width)):3;\n const safeEchoDepth=Number.isFinite(echoDepth)?Math.max(1,Math.min(8,echoDepth)):1;\n const safeEchoScale=Number.isFinite(echoScale)?Math.max(35,Math.min(90,echoScale)):70;\n const safeEchoTwist=Number.isFinite(echoTwist)?Math.max(-180,Math.min(180,echoTwist)):24;
+ const safeWidth=Number.isFinite(width)?Math.max(1,Math.min(14,width)):3;
+ const safeEchoDepth=Number.isFinite(echoDepth)?Math.max(1,Math.min(8,echoDepth)):1;
+ const safeEchoScale=Number.isFinite(echoScale)?Math.max(35,Math.min(90,echoScale)):70;
+ const safeEchoTwist=Number.isFinite(echoTwist)?Math.max(-180,Math.min(180,echoTwist)):24;
  const active=useRef<Stroke|null>(null);
  const redraw=useCallback(()=>{
   const el=canvas.current;if(!el)return;
